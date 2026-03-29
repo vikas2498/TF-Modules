@@ -59,26 +59,35 @@ resource "azurerm_virtual_network" "this" {
 resource "azurerm_network_security_group" "this" {
   for_each = { for k, v in var.subnets : k => v if v.network_security_group != null }
 
-  # Replace "-snet" from the subnet key with "-nsg" to form the name
   name                = "${replace(each.key, "-snet", "-nsg")}"
   location            = var.location
   resource_group_name = var.resource_group_name
   tags                = local.tags
+}
 
-  dynamic "security_rule" {
-    for_each = each.value.network_security_group.rules
-    content {
-      name                       = security_rule.value.name
-      priority                   = security_rule.value.priority
-      direction                  = security_rule.value.direction
-      access                     = security_rule.value.access
-      protocol                   = security_rule.value.protocol
-      source_port_range          = security_rule.value.source_port_range
-      destination_port_range     = security_rule.value.destination_port_range
-      source_address_prefix      = security_rule.value.source_address_prefix
-      destination_address_prefix = security_rule.value.destination_address_prefix
+# Create individual NSG rules (instead of using dynamic block)
+resource "azurerm_network_security_rule" "this" {
+  for_each = merge([
+    for subnet_key, subnet_value in var.subnets : {
+      for rule in(subnet_value.network_security_group != null ? subnet_value.network_security_group.rules : []) :
+      "${subnet_key}-${rule.name}" => {
+        subnet_key  = subnet_key
+        rule        = rule
+      }
     }
-  }
+  ]...)
+
+  name                        = each.value.rule.name
+  priority                    = each.value.rule.priority
+  direction                   = each.value.rule.direction
+  access                      = each.value.rule.access
+  protocol                    = each.value.rule.protocol
+  source_port_range           = each.value.rule.source_port_range
+  destination_port_range      = each.value.rule.destination_port_range
+  source_address_prefix       = each.value.rule.source_address_prefix
+  destination_address_prefix  = each.value.rule.destination_address_prefix
+  resource_group_name         = var.resource_group_name
+  network_security_group_name = azurerm_network_security_group.this[each.value.subnet_key].name
 }
 
 # Create Route Table for each subnet that defines one
@@ -101,8 +110,6 @@ resource "azurerm_route_table" "this" {
     }
   }
 }
-
-
 
 resource "azurerm_subnet" "this" {
   for_each = var.subnets
