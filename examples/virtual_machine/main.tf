@@ -1,3 +1,56 @@
+/*
+# Terraform Configuration: Virtual Machine Deployment Module
+
+## Overview
+This Terraform configuration automates the deployment of both Linux and Windows virtual machines on Azure, including associated networking and storage resources. It supports multiple VMs with flexible IP configurations and data disk attachments.
+
+## Architecture
+
+### Local Values
+- **resource_groups_map**: Deduplicates resource groups across Linux and Windows VM definitions, creating a unified map for resource group creation or referencing.
+- **linux_ip_configurations**: Flattens IP configuration nested structures for Linux VMs into a searchable map format.
+- **windows_ip_configurations**: Flattens IP configuration nested structures for Windows VMs into a searchable map format.
+- **linux_data_disks**: Flattens data disk nested structures for Linux VMs, enriching with VM-level metadata.
+- **windows_data_disks**: Flattens data disk nested structures for Windows VMs, enriching with VM-level metadata.
+
+### Deployment Steps
+
+#### Step 1: Resource Groups
+- **Module**: resource_group
+- Creates or references existing Azure resource groups based on `use_existing` flag
+- Supports deduplication across Linux and Windows VM definitions
+
+#### Step 2: Network Interfaces (NICs)
+- **Data Sources**: azurerm_subnet (linux/windows)
+  - Lookups subnet information for each IP configuration
+- **Modules**: linux_nic / windows_nic
+  - Creates network interface cards with specified IP configurations
+  - Supports multiple IP configurations per NIC
+  - Configurable accelerated networking and IP forwarding
+
+#### Step 3: Virtual Machines
+- **Modules**: linux_virtual_machine / windows_virtual_machine
+  - Provisions Linux VMs with SSH key or password authentication
+  - Provisions Windows VMs with WinRM, timezone, and patch management options
+  - Supports availability sets and zones for HA/DR
+
+#### Step 4: Managed Disks
+- **Modules**: linux_managed_disk / windows_managed_disk
+  - Creates managed data disks with configurable storage types and sizes
+
+#### Step 5: Disk Attachments
+- **Resources**: azurerm_virtual_machine_data_disk_attachment (linux/windows)
+  - Attaches managed disks to VMs with specified LUN and caching settings
+
+## Key Features
+- Supports Linux and Windows VMs independently with separate configuration streams
+- Flexible IP configuration with multiple NICs per VM
+- Dynamic data disk management with configurable attachment parameters
+- Resource deduplication for efficient RG management
+- Modular design using custom Azure modules
+- Zone and availability set support for redundancy
+*/
+
 locals {
  # ── Deduplicate Resource Groups across Linux + Windows VMs ────────────
   resource_groups_map = {

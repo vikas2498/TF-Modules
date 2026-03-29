@@ -1,3 +1,41 @@
+/*
+# Terraform Virtual Machines Configuration
+
+This file contains example configurations for deploying Linux and Windows virtual machines to Azure using Terraform.
+
+## Linux Virtual Machines
+
+Defines Linux VM instances with the following configurable properties:
+- **Basic Settings**: Location, resource group, VM size, and authentication method
+- **Authentication**: Supports both SSH key and password-based authentication
+- **Networking**: Multiple IP configurations with static private IP allocation across subnets
+- **Storage**: OS disk configuration with caching and storage account type specifications
+- **Image**: SUSE Linux Enterprise Server (SLES) 15 SP5 source image
+- **Availability**: Zone-based deployment for high availability
+- **Data Disks**: Additional storage disks with configurable size and caching
+- **Features**: Accelerated networking support
+- **Metadata**: Resource tags for environment, OS type, project, and resource classification
+
+## Windows Virtual Machines
+
+Defines Windows Server VM instances with the following configurable properties:
+- **Basic Settings**: Location, resource group, VM size, and credentials
+- **OS Configuration**: Timezone, automatic updates, and patch management settings
+- **Networking**: Multiple IP configurations with static private IP allocation
+- **Storage**: Premium OS disk with specified caching and size
+- **Image**: Windows Server 2022 Datacenter edition
+- **Availability**: Zone-based deployment for high availability
+- **Data Disks**: Multiple additional storage disks for application workloads
+- **Features**: Accelerated networking support
+- **Metadata**: Resource tags for environment, OS type, project, and resource classification
+
+## Notes
+
+- All VM configurations are currently commented out (example/template format)
+- Both Linux and Windows VMs utilize Premium_LRS storage for production-grade performance
+- Static IP allocation is configured for consistent network addressing
+- Resource grouping and tagging follow organizational naming conventions
+*/
 # ── Linux Virtual Machines ─────────────────────────────────────────────
 linux_virtual_machines = {
   /*

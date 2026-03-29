@@ -1,3 +1,100 @@
+/*
+# Linux Virtual Machine Terraform Module - Variables Documentation
+
+## Overview
+This module defines variables for creating and configuring Linux virtual machines in Azure. It supports both SSH key and password authentication, with flexible OS disk and source image configuration options.
+
+## Required Variables
+
+### name
+- **Type:** string
+- **Description:** Name of the Linux virtual machine.
+
+### location
+- **Type:** string
+- **Description:** Azure region where the virtual machine will be created.
+
+### resource_group_name
+- **Type:** string
+- **Description:** Name of the resource group in which to create the virtual machine.
+
+### vm_size
+- **Type:** string
+- **Description:** Size of the virtual machine (e.g., Standard_D2s_v3).
+
+### admin_username
+- **Type:** string
+- **Description:** Username for the local administrator account.
+
+### network_interface_ids
+- **Type:** list(string)
+- **Description:** List of network interface IDs to attach to the virtual machine.
+
+### source_image
+- **Type:** object
+- **Description:** Source image reference for the virtual machine.
+- **Fields:**
+  - `publisher` (string, required): Image publisher name
+  - `offer` (string, required): Image offer name
+  - `sku` (string, required): Image SKU
+  - `version` (string, optional): Image version (defaults to "latest")
+
+## Authentication Variables
+
+### admin_ssh_key
+- **Type:** string
+- **Default:** null
+- **Description:** Public SSH key for the administrator account. Required when `disable_password_authentication = true`.
+
+### admin_password
+- **Type:** string (sensitive)
+- **Default:** null
+- **Description:** Password for the administrator account. Required when `disable_password_authentication = false`.
+
+### disable_password_authentication
+- **Type:** bool
+- **Default:** true
+- **Description:** Controls authentication method. Set to `true` for SSH key authentication, `false` for password authentication.
+- **Validation:** Must be either true or false.
+
+## OS Disk Configuration
+
+### os_disk
+- **Type:** object
+- **Default:** {}
+- **Description:** OS disk configuration for the virtual machine.
+- **Fields:**
+  - `caching` (string, optional): Disk caching type (defaults to "ReadWrite")
+  - `storage_account_type` (string, optional): Storage account type (defaults to "Premium_LRS")
+  - `disk_size_gb` (number, optional): Disk size in GB (defaults to 128)
+
+## Optional Variables
+
+### availability_set_id
+- **Type:** string
+- **Default:** null
+- **Description:** ID of the availability set for the VM.
+
+### zone
+- **Type:** string
+- **Default:** null
+- **Description:** Availability zone for the VM (e.g., 1, 2, 3).
+
+### boot_diagnostics_storage_uri
+- **Type:** string
+- **Default:** null
+- **Description:** Storage account URI for boot diagnostics.
+
+### custom_data
+- **Type:** string
+- **Default:** null
+- **Description:** Base64 encoded custom data to pass to the VM during initialization.
+
+### tags
+- **Type:** map(string)
+- **Default:** {}
+- **Description:** Tags to apply to all resources created by this module.
+*/ 
 # ── Required Variables ─────────────────────────────────────────────────
 variable "name" {
   description = "Name of the Linux virtual machine."
