@@ -47,4 +47,12 @@ resource "azurerm_windows_virtual_machine" "this" {
       storage_account_uri = var.boot_diagnostics_storage_uri
     }
   }
+  lifecycle {
+    # Prevent Terraform from trying to power off/on a deallocated VM
+    ignore_changes = [
+      identity,
+    ]
+    # Prevent accidental deletion of VM
+    prevent_destroy = false
+  }
 }
