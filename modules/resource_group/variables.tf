@@ -1,21 +1,21 @@
 variable "name" {
-    description = "Name of the resource group. Must be unique within the Azure subscription."
-    type        = string
+  description = "Name of the resource group."
+  type        = string
 }
 
 variable "location" {
-    description = "Name of the azure region where resource group will be created e.g. West Europe, North Europe"
-    type        = string
+  description = "Azure region where the resource group will be created."
+  type        = string
+}
+
+variable "use_existing" {
+  description = "Set to true if the resource group already exists and should not be created."
+  type        = bool
+  default     = false
 }
 
 variable "tags" {
-    description   = "(optional)tags for resource group"
-    type          = map(string)
-    default       = {}
-}
-
-variable "managed_by" {
-    description = "(Optional) ID of the resource that manages this resource group (e.g. a Subscription or Management Group resource ID)."
-    type        = string
-    default     = null
+  description = "Tags to apply to the resource group."
+  type        = map(string)
+  default     = {}
 }

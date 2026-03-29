@@ -1,15 +1,14 @@
-output "id"{
-    description = "The fully qualified resource ID of the resource group."
-    value       = azurerm_resource_group.this.id
+output "name" {
+  description = "The name of the resource group."
+  value       = var.use_existing ? data.azurerm_resource_group.existing[0].name : azurerm_resource_group.this[0].name
 }
 
-output "name" {
-    description = "The name of the resource group."
-    value       = azurerm_resource_group.this.name
+output "id" {
+  description = "The ID of the resource group."
+  value       = var.use_existing ? data.azurerm_resource_group.existing[0].id : azurerm_resource_group.this[0].id
 }
 
 output "location" {
-    description = "The Azure region in which the resource group was created."
-    value       = azurerm_resource_group.this.location
-    
+  description = "The location of the resource group."
+  value       = var.use_existing ? data.azurerm_resource_group.existing[0].location : azurerm_resource_group.this[0].location
 }
