@@ -1,3 +1,62 @@
+/*
+# Virtual Machine Variables Module
+
+## Overview
+Defines input variables for creating and configuring Linux and Windows virtual machines in Azure using Terraform.
+
+## Variables
+
+### linux_virtual_machines
+A map of Linux virtual machine configurations to be provisioned.
+
+**Type:** `map(object({...}))`
+
+**Default:** `{}`
+
+**Schema:**
+- `location` (string, required): Azure region for VM deployment
+- `resource_group_name` (string, required): Name of the resource group
+- `use_existing_rg` (bool, optional): Set to `true` if resource group already exists. Default: `false`
+- `vm_size` (string, required): VM instance size (e.g., "Standard_B2s")
+- `admin_username` (string, required): Linux admin user account name
+- `admin_ssh_key` (string, optional): SSH public key for authentication
+- `admin_password` (string, optional): Admin password (alternative to SSH key)
+- `disable_password_authentication` (bool, optional): Disable password login. Default: `true`
+- `ip_configurations` (map, required): Network interface configuration(s)
+- `dns_servers` (list, optional): Custom DNS servers. Default: `[]`
+- `enable_accelerated_networking` (bool, optional): Enable SR-IOV support. Default: `false`
+- `enable_ip_forwarding` (bool, optional): Enable IP forwarding. Default: `false`
+- `availability_set_id` (string, optional): Availability set resource ID
+- `zone` (string, optional): Availability zone
+- `boot_diagnostics_storage_uri` (string, optional): Storage account URI for diagnostics
+- `custom_data` (string, optional): Cloud-init script data
+- `os_disk` (object, optional): OS disk configuration with caching, storage type, and size
+- `source_image` (object, required): Image details (publisher, offer, sku, version)
+- `data_disks` (map, optional): Additional data disks configuration
+- `tags` (map, optional): Azure resource tags. Default: `{}`
+
+### windows_virtual_machines
+A map of Windows virtual machine configurations to be provisioned.
+
+**Type:** `map(object({...}))`
+
+**Default:** `{}`
+
+**Schema:** Same as Linux VMs with Windows-specific additions:
+- `admin_password` (string, required): Windows admin password
+- `timezone` (string, optional): Windows timezone. Default: `"UTC"`
+- `provision_vm_agent` (bool, optional): Install Azure VM agent. Default: `true`
+- `enable_automatic_updates` (bool, optional): Enable automatic Windows updates. Default: `true`
+- `patch_mode` (string, optional): Update patch mode. Default: `"AutomaticByOS"`
+- `winrm_listeners` (list, optional): WinRM listener configuration for remote management
+
+## Notes
+- SSH key is preferred for Linux authentication; password is fallback option
+- Windows requires admin password; no SSH alternative
+- IP configurations require referencing existing VNets and subnets
+- Data disks are optional and can be added post-provisioning
+- Tags are inherited from module variables and can be customized per VM
+*/
 # ── Linux Virtual Machines ─────────────────────────────────────────────
 variable "linux_virtual_machines" {
   description = "A map of Linux virtual machines to create."
@@ -18,7 +77,7 @@ variable "linux_virtual_machines" {
       vnet_name                     = string
       vnet_resource_group_name      = string
       subnet_name                   = string
-      private_ip_address_allocation = optional(string, "Dynamic")
+      private_ip_address_allocation = optional(string, "Static")
       private_ip_address            = optional(string)
       public_ip_address_id          = optional(string)
       primary                       = optional(bool, false)
@@ -83,7 +142,7 @@ variable "windows_virtual_machines" {
       vnet_name                     = string
       vnet_resource_group_name      = string
       subnet_name                   = string
-      private_ip_address_allocation = optional(string, "Dynamic")
+      private_ip_address_allocation = optional(string, "Static")
       private_ip_address            = optional(string)
       public_ip_address_id          = optional(string)
       primary                       = optional(bool, false)

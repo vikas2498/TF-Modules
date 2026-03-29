@@ -1,3 +1,59 @@
+/*
+# Linux Virtual Machine Module - Main Configuration
+
+## Overview
+This Terraform configuration defines a complete Linux virtual machine resource for Azure infrastructure with comprehensive validation and flexible authentication options.
+
+## Local Values
+
+### tags
+Merges user-provided tags with a managed-by identifier to track resources created by Terraform.
+
+## Validation
+
+### auth_validation
+Enforces authentication configuration preconditions:
+- **SSH Key Authentication**: When `disable_password_authentication = true`, an SSH public key must be provided via `admin_ssh_key`
+- **Password Authentication**: When `disable_password_authentication = false`, a password must be provided via `admin_password`
+
+Fails with a descriptive error if configuration does not match one of these two valid states.
+
+## Resources
+
+### azurerm_linux_virtual_machine (this)
+Manages the Azure Linux virtual machine instance with the following capabilities:
+
+**Core Configuration**:
+- VM name, location, resource group, and size
+- Admin username with flexible authentication (SSH key or password)
+- Network interface attachment and optional availability set/zone placement
+- Custom data for VM initialization
+
+**Storage**:
+- OS disk configuration with name, caching strategy, storage type, and optional size customization
+- Boot diagnostics support with optional storage account URI
+
+**Image**:
+- Flexible source image specification via publisher, offer, SKU, and version
+
+**Authentication**:
+- Conditional SSH key block only provisioned when SSH authentication is enabled
+- Password field set to null when SSH authentication is active
+
+**Lifecycle Management**:
+- Ignores identity changes to prevent unnecessary updates
+- Prevents accidental VM deletion (can be modified as needed)
+
+## Variables Required
+- `name`, `location`, `resource_group_name`: VM identification and placement
+- `vm_size`: Azure VM size SKU
+- `admin_username`: Administrative user account
+- `admin_password`, `admin_ssh_key`: Authentication credentials (one required based on auth method)
+- `disable_password_authentication`: Boolean flag to select auth method
+- `network_interface_ids`: Network attachment specification
+- `os_disk`, `source_image`: Complex configuration objects
+- Optional: `availability_set_id`, `zone`, `custom_data`, `boot_diagnostics_storage_uri`, `tags`
+*/
 locals {
   tags = merge(var.tags, { managed_by = "terraform" })
 }
