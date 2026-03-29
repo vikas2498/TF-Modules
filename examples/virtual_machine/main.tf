@@ -1,9 +1,21 @@
 locals {
-  # ── Deduplicate Resource Groups across Linux + Windows VMs ────────────
+ # ── Deduplicate Resource Groups across Linux + Windows VMs ────────────
   resource_groups_map = {
     for rg_key, rg_value in merge(
-      { for k, v in var.linux_virtual_machines : v.resource_group_name => { name = v.resource_group_name, location = v.location, tags = v.tags } },
-      { for k, v in var.windows_virtual_machines : v.resource_group_name => { name = v.resource_group_name, location = v.location, tags = v.tags } }
+      { for k, v in var.linux_virtual_machines : v.resource_group_name => {
+          name         = v.resource_group_name
+          location     = v.location
+          use_existing = v.use_existing_rg
+          tags         = v.tags
+        }
+      },
+      { for k, v in var.windows_virtual_machines : v.resource_group_name => {
+          name         = v.resource_group_name
+          location     = v.location
+          use_existing = v.use_existing_rg
+          tags         = v.tags
+        }
+      }
     ) : rg_key => rg_value
   }
 
@@ -76,14 +88,15 @@ locals {
   ]...)
 }
 
-# ── Step 1: Create Resource Groups ────────────────────────────────────
+# ── Step 1: Create or reference existing Resource Groups ──────────────
 module "resource_group" {
   source   = "../../modules/resource_group"
   for_each = local.resource_groups_map
 
-  name     = each.value.name
-  location = each.value.location
-  tags     = each.value.tags
+  name         = each.value.name
+  location     = each.value.location
+  use_existing = each.value.use_existing   # ← true = data source, false = create
+  tags         = each.value.tags
 }
 
 # ── Data Source: Subnet lookup for Linux VMs ───────────────────────────
@@ -167,9 +180,10 @@ module "linux_virtual_machine" {
   resource_group_name             = each.value.resource_group_name
   vm_size                         = each.value.vm_size
   admin_username                  = each.value.admin_username
-  admin_ssh_key                   = each.value.admin_ssh_key
-  network_interface_ids           = [module.linux_nic[each.key].id]
+  admin_ssh_key                   = each.value.admin_ssh_key       # ← Optional SSH key
+  admin_password                  = each.value.admin_password       # ← Optional password
   disable_password_authentication = each.value.disable_password_authentication
+  network_interface_ids           = [module.linux_nic[each.key].id]
   availability_set_id             = each.value.availability_set_id
   zone                            = each.value.zone
   boot_diagnostics_storage_uri    = each.value.boot_diagnostics_storage_uri

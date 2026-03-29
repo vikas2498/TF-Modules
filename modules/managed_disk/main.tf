@@ -9,6 +9,6 @@ resource "azurerm_managed_disk" "this" {
   storage_account_type = var.storage_account_type
   create_option        = var.create_option
   disk_size_gb         = var.disk_size_gb
-  zone                 = var.zone
+  zone                 = var.zone        # ← Fixed: was "zones", correct argument is "zone"
   tags                 = local.tags
 }

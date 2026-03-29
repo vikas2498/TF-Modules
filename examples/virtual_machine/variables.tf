@@ -2,11 +2,16 @@
 variable "linux_virtual_machines" {
   description = "A map of Linux virtual machines to create."
   type = map(object({
-    location            = string
-    resource_group_name = string
-    vm_size             = string
-    admin_username      = string
-    admin_ssh_key       = string
+    location             = string
+    resource_group_name  = string
+    use_existing_rg      = optional(bool, false)   # ← true = RG already exists
+    vm_size              = string
+    admin_username       = string
+
+    # Authentication
+    admin_ssh_key                   = optional(string)
+    admin_password                  = optional(string)
+    disable_password_authentication = optional(bool, true)
 
     # NIC Configuration
     ip_configurations = map(object({
@@ -18,14 +23,13 @@ variable "linux_virtual_machines" {
       public_ip_address_id          = optional(string)
       primary                       = optional(bool, false)
     }))
-    dns_servers                     = optional(list(string), [])
-    enable_accelerated_networking   = optional(bool, false)
-    enable_ip_forwarding            = optional(bool, false)
-    disable_password_authentication = optional(bool, true)
-    availability_set_id             = optional(string)
-    zone                            = optional(string)
-    boot_diagnostics_storage_uri    = optional(string)
-    custom_data                     = optional(string)
+    dns_servers                   = optional(list(string), [])
+    enable_accelerated_networking = optional(bool, false)
+    enable_ip_forwarding          = optional(bool, false)
+    availability_set_id           = optional(string)
+    zone                          = optional(string)
+    boot_diagnostics_storage_uri  = optional(string)
+    custom_data                   = optional(string)
 
     os_disk = optional(object({
       caching              = optional(string, "ReadWrite")
@@ -57,11 +61,12 @@ variable "linux_virtual_machines" {
 variable "windows_virtual_machines" {
   description = "A map of Windows virtual machines to create."
   type = map(object({
-    location            = string
-    resource_group_name = string
-    vm_size             = string
-    admin_username      = string
-    admin_password      = string
+    location             = string
+    resource_group_name  = string
+    use_existing_rg      = optional(bool, false)   # ← true = RG already exists
+    vm_size              = string
+    admin_username       = string
+    admin_password       = string
 
     # Windows Specific
     timezone                 = optional(string, "UTC")
@@ -83,13 +88,13 @@ variable "windows_virtual_machines" {
       public_ip_address_id          = optional(string)
       primary                       = optional(bool, false)
     }))
-    dns_servers                  = optional(list(string), [])
+    dns_servers                   = optional(list(string), [])
     enable_accelerated_networking = optional(bool, false)
-    enable_ip_forwarding         = optional(bool, false)
-    availability_set_id          = optional(string)
-    zone                         = optional(string)
-    boot_diagnostics_storage_uri = optional(string)
-    custom_data                  = optional(string)
+    enable_ip_forwarding          = optional(bool, false)
+    availability_set_id           = optional(string)
+    zone                          = optional(string)
+    boot_diagnostics_storage_uri  = optional(string)
+    custom_data                   = optional(string)
 
     os_disk = optional(object({
       caching              = optional(string, "ReadWrite")

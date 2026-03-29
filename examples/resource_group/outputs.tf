@@ -1,34 +1,14 @@
-# Outputs
-
-## resource_group_ids
-## - **Description**: Map of key → resource ID for every resource group created.
-## - **Value**: A map where the key is the identifier and the value is the resource ID of the resource group.
-
-## resource_group_names
-## - **Description**: Map of key → name for every resource group created.
-## - **Value**: A map where the key is the identifier and the value is the name of the resource group.
-
-## resource_group_location
-## - **Description**: Map of key → Azure region for every resource group created.
-## - **Value**: A map where the key is the identifier and the value is the Azure region of the resource group.
-
-output "resource_group_ids" {
-    description = "Map of key → resource ID for every resource group created."
-    value       = { 
-        for k, v in module.resource_groups : k => v.id 
-        }
+output "name" {
+  description = "The name of the resource group."
+  value       = var.use_existing ? data.azurerm_resource_group.existing[0].name : azurerm_resource_group.this[0].name
 }
 
-output "resource_group_names" {
-    description = "Map of key → name for every resource group created."
-    value       = {
-        for k, v in module.resource_groups : k =>v.name
-        }
+output "id" {
+  description = "The ID of the resource group."
+  value       = var.use_existing ? data.azurerm_resource_group.existing[0].id : azurerm_resource_group.this[0].id
 }
 
-output "resource_group_location" {
-    description = "Map of key → Azure region for every resource group created."
-    value       ={
-        for k, v in module.resource_groups : k =>v.location
-    } 
+output "location" {
+  description = "The location of the resource group."
+  value       = var.use_existing ? data.azurerm_resource_group.existing[0].location : azurerm_resource_group.this[0].location
 }

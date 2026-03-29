@@ -24,20 +24,34 @@ variable "admin_username" {
   type        = string
 }
 
-variable "admin_ssh_key" {
-  description = "Public SSH key for the administrator account."
-  type        = string
-}
-
 variable "network_interface_ids" {
   description = "List of network interface IDs to attach to the virtual machine."
   type        = list(string)
 }
 
+# ── Authentication Variables ───────────────────────────────────────────
+variable "admin_ssh_key" {
+  description = "(Optional) Public SSH key for the administrator account. Required when disable_password_authentication = true."
+  type        = string
+  default     = null
+}
+
+variable "admin_password" {
+  description = "(Optional) Password for the administrator account. Required when disable_password_authentication = false."
+  type        = string
+  sensitive   = true
+  default     = null
+}
+
 variable "disable_password_authentication" {
-  description = "(Optional) Disable password authentication on the VM."
+  description = "Disable password authentication. Set to false to use password auth, true to use SSH key auth."
   type        = bool
   default     = true
+
+  validation {
+    condition     = var.disable_password_authentication == true || var.disable_password_authentication == false
+    error_message = "disable_password_authentication must be either true (SSH key) or false (password)."
+  }
 }
 
 # ── OS Disk Variables ──────────────────────────────────────────────────
