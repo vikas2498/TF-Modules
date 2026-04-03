@@ -1,0 +1,89 @@
+trigger:
+  branches:
+    include:
+      - main
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+parameters:
+  - name: terraformWorkingDirectory
+    displayName: 'Terraform Working Directory'
+    type: string
+    default: 'TF-Modules/examples/resource_group'
+    values:
+      - 'TF-Modules/examples/resource_group'
+      - 'TF-Modules/examples/virtual_network'
+      - 'TF-Modules/examples/virtual_machine'
+      - 'TF-Modules/examples/storage_account'
+      - 'TF-Modules/examples/key_vault'
+      - 'TF-Modules/examples/key_vault_secret'
+      - 'TF-Modules/examples/app_service'
+
+  - name: deployDev
+    displayName: 'Deploy to Dev'
+    type: boolean
+    default: true
+
+  - name: deployStaging
+    displayName: 'Deploy to Staging'
+    type: boolean
+    default: false
+
+  - name: deployProd
+    displayName: 'Deploy to Prod'
+    type: boolean
+    default: false
+
+variables:
+  - name: terraformVersion
+    value: '1.7.5'
+  - name: backendContainer
+    value: 'tfstate'
+
+# ── Dev ──────────────────────────────────────────────────────────────────
+stages:
+  - ${{ if eq(parameters.deployDev, true) }}:
+    - template: templates/terraform-stage.yml
+      parameters:
+        environment: 'dev'
+        serviceConnection: 'Dev-Azure-SVC'
+        terraformWorkingDirectory: ${{ parameters.terraformWorkingDirectory }}
+        terraformVersion: $(terraformVersion)
+        backendResourceGroup: 'rg-terraform-dev'
+        backendStorageAccount: 'stterraformdev'
+        backendContainer: $(backendContainer)
+        backendKey: 'dev.tfstate'
+        additionalPlanArgs: '-var-file=terraform.tfvars'
+
+# ── Staging ──────────────────────────────────────────────────────────────
+  - ${{ if eq(parameters.deployStaging, true) }}:
+    - template: templates/terraform-stage.yml
+      parameters:
+        environment: 'staging'
+        serviceConnection: 'Staging-Azure-SVC'
+        terraformWorkingDirectory: ${{ parameters.terraformWorkingDirectory }}
+        terraformVersion: $(terraformVersion)
+        backendResourceGroup: 'rg-terraform-staging'
+        backendStorageAccount: 'stterraformstaging'
+        backendContainer: $(backendContainer)
+        backendKey: 'staging.tfstate'
+        additionalPlanArgs: '-var-file=terraform.tfvars'
+        dependsOn:
+          - Apply_dev
+
+# ── Prod ─────────────────────────────────────────────────────────────────
+  - ${{ if eq(parameters.deployProd, true) }}:
+    - template: templates/terraform-stage.yml
+      parameters:
+        environment: 'prod'
+        serviceConnection: 'Prod-Azure-SVC'
+        terraformWorkingDirectory: ${{ parameters.terraformWorkingDirectory }}
+        terraformVersion: $(terraformVersion)
+        backendResourceGroup: 'rg-terraform-prod'
+        backendStorageAccount: 'stterraformprod'
+        backendContainer: $(backendContainer)
+        backendKey: 'prod.tfstate'
+        additionalPlanArgs: '-var-file=terraform.tfvars'
+        dependsOn:
+          - Apply_staging
