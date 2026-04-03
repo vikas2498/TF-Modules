@@ -1,7 +1,7 @@
 key_vaults = {
   platform = {
-    name                        = "sub200weudevkv01"
-    resource_group_name         = "sub-200-weu-dev-rg-net"
+    name                        = "AQA-INF-PRD-EUW-IO-KV"
+    resource_group_name         = "EA-WE-D-RG-D03"
     location                    = "West Europe"
     sku_name                    = "standard"
     enabled_for_disk_encryption = true
@@ -9,23 +9,25 @@ key_vaults = {
     purge_protection_enabled    = false
     access_policies = [
       {
-        object_id          = "00000000-0000-0000-0000-000000000000" # replace with your user/SP object ID
+        object_id          = "974a022a-fa9e-427e-91b7-367088441400" # replace with your user/SP object ID
         key_permissions    = ["Get", "List", "Create", "Delete", "Backup", "Restore"]
         secret_permissions = ["Get", "List", "Set", "Delete", "Backup", "Restore"]
       }
     ]
+   /*
     network_acls = {
       bypass         = "AzureServices"
       default_action = "Deny"
       ip_rules       = ["100.0.0.1"]
     }
+    */
     private_endpoint = {
-      name                         = "sub200weudevkv01-pe"
-      subnet_name                  = "sub-200-weu-dev-pe-snt"
-      virtual_network_name         = "sub-200-weu-dev-vnet"
-      subnet_resource_group_name   = "sub-200-weu-dev-rg-net"
-      private_dns_zone_name        = "privatelink.vaults.azure.net"
-      dns_zone_resource_group_name = "sub-200-weu-dev-rg-net"
+      name                         = "AQA-INF-PRD-EUW-IO-KV-pe"
+      subnet_name                  = "EA-WE-prd-app-snet"
+      virtual_network_name         = "EA-WE-prd-Vnet"
+      subnet_resource_group_name   = "EA-WE-D-RG-Net"
+     # private_dns_zone_name        = "privatelink.vaults.azure.net"
+     # dns_zone_resource_group_name = "sub-200-weu-dev-rg-net"
     }
     tags = {
       project     = "Platform"
